@@ -1,53 +1,143 @@
-# CakePHP Application Skeleton
 
-![Build Status](https://github.com/cakephp/app/actions/workflows/ci.yml/badge.svg?branch=5.x)
-[![Total Downloads](https://img.shields.io/packagist/dt/cakephp/app.svg?style=flat-square)](https://packagist.org/packages/cakephp/app)
-[![PHPStan](https://img.shields.io/badge/PHPStan-level%208-brightgreen.svg?style=flat-square)](https://github.com/phpstan/phpstan)
+# CakePHP Card Distribution Application
 
-A skeleton for creating applications with [CakePHP](https://cakephp.org) 5.x.
+This is a simple CakePHP application that distributes a standard deck of 52 playing cards to a specified number of people. The application is containerized using Docker for easy setup and deployment.
 
-The framework source code can be found here: [cakephp/cakephp](https://github.com/cakephp/cakephp).
+---
 
-## Installation
+## **Table of Contents**
+1. [Prerequisites](#prerequisites)
+2. [Setup](#setup)
+   - [Clone the Repository](#clone-the-repository)
+   - [Docker Setup](#docker-setup)
+   - [Access the Application](#access-the-application)
+3. [Usage](#usage)
+   - [Distribute Cards](#distribute-cards)
+   - [Test the Application](#test-the-application)
+4. [Project Structure](#project-structure)
+5. [Troubleshooting](#troubleshooting)
 
-1. Download [Composer](https://getcomposer.org/doc/00-intro.md) or update `composer self-update`.
-2. Run `php composer.phar create-project --prefer-dist cakephp/app [app_name]`.
+---
 
-If Composer is installed globally, run
+## **Prerequisites**
 
-```bash
-composer create-project --prefer-dist cakephp/app
-```
+Before you begin, ensure you have the following installed on your system:
+- [Docker](https://docs.docker.com/get-docker/)
+- [Docker Compose](https://docs.docker.com/compose/install/)
+- [Git](https://git-scm.com/downloads)
 
-In case you want to use a custom app dir name (e.g. `/myapp/`):
+---
 
-```bash
-composer create-project --prefer-dist cakephp/app myapp
-```
+## **Setup**
 
-You can now either use your machine's webserver to view the default home page, or start
-up the built-in webserver with:
+### **Clone the Repository**
 
-```bash
-bin/cake server -p 8765
-```
+1. Clone this repository to your local machine:
 
-Then visit `http://localhost:8765` to see the welcome page.
+   ```bash
+   git clone git@github.com:rizaini/tyrell_question_a_framework.git
+   cd tyrell_question_a_framework
+   ```
 
-## Update
+### **Docker Setup**
 
-Since this skeleton is a starting point for your application and various files
-would have been modified as per your needs, there isn't a way to provide
-automated upgrades, so you have to do any updates manually.
+1. Run the following command to build and start the Docker containers :
+	```
+	docker-compose up -d
+	```
+	This will:
+	-   Start a PHP-FPM container (`cakephp_php`).
+	-   Start an Nginx container (`cakephp_web`) to serve the application.
+	-   Map port  `8080`  on your local machine to port  `80`  in the Nginx container.
+	
+2. Verify the Containers (Check that the containers are running) :
+	```
+	docker-compose ps	
+	```
+	You should see two services: `cakephp_web` and `cakephp_php`.
 
-## Configuration
+### **Access the Application**
+1. Open your browser and navigate to:
 
-Read and edit the environment specific `config/app_local.php` and set up the
-`'Datasources'` and any other configuration relevant for your application.
-Other environment agnostic settings can be changed in `config/app.php`.
+	```
+	http://localhost:8080/
+	```
+2.  You should see a form asking for the number of people. Enter a number and click "Distribute Cards."
 
-## Layout
+## **Usage**
 
-The app skeleton uses [Milligram](https://milligram.io/) (v1.3) minimalist CSS
-framework by default. You can, however, replace it with any other library or
-custom styles.
+### **Distribute Cards**
+
+1.  **Enter the Number of People**:
+    
+    -   On the homepage (`http://localhost:8080/`), enter the number of people in the input field.
+        
+    -   Click "Distribute Cards."
+        
+2.  **View the Distributed Cards**:
+    
+    -   The application will display the distributed cards for each person in the format:
+    ```
+    Person 1: S-A, H-2, D-3, ...
+	Person 2: H-A, D-2, C-3, ...
+	```
+### **Test the Application**
+
+1.  **Test with Valid Input**:
+    
+    -   Enter a valid number (e.g.,  `4`) and ensure the cards are distributed correctly.
+        
+2.  **Test with Invalid Input**:
+    
+    -   Enter an invalid value (e.g.,  `-1`  or  `abc`) and ensure the application displays an error message:
+     -  Input value does not exist or value is invalid
+        
+3.  **Test with No Input**:
+    -   Access the application without providing the  `people`  parameter (e.g.,  `http://localhost:8080/`). The application will default to distributing cards to  `4`  people.
+
+## **Project Structure**
+The project structure is as follows:
+
+	
+	├── docker
+	│   └── nginx.conf          # Nginx configuration file
+	├── docker-compose.yml      # Docker Compose configuration
+	├── Dockerfile              # PHP-FPM Dockerfile
+	├── src
+	│   └── Controller
+	│       └── CardsController.php # Controller for card distribution
+	├── templates
+	│   └── Cards
+	│       ├── distribute.php  # View for displaying distributed cards
+	│       └── form.php        # View for collecting the number of people
+	├── config
+	│   ├── app.php             # CakePHP application configuration
+	│   └── routes.php          # Route configuration
+	├── vendor                  # Composer dependencies
+	├── webroot                 # Public assets
+	└── README.md               # This file
+
+## **Troubleshooting**
+
+### **Common Issues**
+
+1.  **Application Not Accessible**:
+    
+    -   Ensure the Docker containers are running:
+```docker-compose ps```
+    
+    
+    -   Check the logs for errors:
+		```
+		docker logs cakephp_php
+        docker logs cakephp_web
+        ```
+        
+2.  **Missing PHP Extensions**:
+    
+    -   If you encounter errors related to missing PHP extensions (e.g.,  `intl`), ensure the  `Dockerfile`  installs the required extensions.
+        
+3.  **CakePHP Cache Issues**:
+    
+    -   Clear the CakePHP cache:
+        ```docker exec -it cakephp_php bin/cake cache clear_all```
